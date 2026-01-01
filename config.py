@@ -1,7 +1,7 @@
 import os
 
 class Config:
-    SECRET_KEY = os.environ.get("0b1bba2bef32b8faf0a404daf5378bd448ed04bf552642f91ef1231ff42b4687")
+    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret")
 
     # Gmail SMTP
     MAIL_SERVER = "smtp.gmail.com"
@@ -18,5 +18,6 @@ class Config:
 
     # SLACK NOTIFIER
     SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"
+
 
 
