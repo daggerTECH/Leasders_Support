@@ -1,7 +1,7 @@
 import os
 
 class Config:
-    SECRET_KEY = os.environ.get("0b1bba2bef32b8faf0a404daf5378bd448ed04bf552642f91ef1231ff42b4687")
+    SECRET_KEY = os.environ.get("SECRET_KEY")
 
     # Gmail SMTP
     MAIL_SERVER = "smtp.gmail.com"
@@ -9,12 +9,12 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
 
-    MAIL_USERNAME = "danny.villanueva@leaders.st"
-    MAIL_PASSWORD = "wsut sfvc ctja yofz"
+    MAIL_USERNAME = "MAIL_USERNAME"
+    MAIL_PASSWORD = "MAIL_PASSWORD"
 
     # SQLAlchemy Database
-    SQLALCHEMY_DATABASE_URI = os.environ.get("mysql://root:yxpVkOzJCBXpybNYXFdmQXPvULefozpd@nozomi.proxy.rlwy.net:52431/railway")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # SLACK NOTIFIER
-    SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"
+    SLACK_WEBHOOK_URL = "SLACK_WEBHOOK_URL"
