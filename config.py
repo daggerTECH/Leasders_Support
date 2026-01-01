@@ -13,9 +13,10 @@ class Config:
     EMAIL_PASSWORD = "mwwe grms mazj yqeg"
 
     # SQLAlchemy Database
-    SQLALCHEMY_DATABASE_URI = os.environ.get("mysql://root:yxpVkOzJCBXpybNYXFdmQXPvULefozpd@nozomi.proxy.rlwy.net:52431/railway")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # SLACK NOTIFIER
     SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"
+
 
