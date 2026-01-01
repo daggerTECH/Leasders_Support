@@ -13,11 +13,20 @@ class Config:
     EMAIL_PASSWORD = "mwwe grms mazj yqeg"
 
     # SQLAlchemy Database
-    SQLALCHEMY_DATABASE_URI = os.getenv("mysql://root:yxpVkOzJCBXpybNYXFdmQXPvULefozpd@nozomi.proxy.rlwy.net:52431/railway")
+    DATABASE_URL = os.getenv("DATABASE_URL")
+
+    if DATABASE_URL and DATABASE_URL.startswith("mysql://"):
+        DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
+
+    if not DATABASE_URL:
+        raise RuntimeError("❌ DATABASE_URL is not set")
+
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # SLACK NOTIFIER
     SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"
+
 
 
 
