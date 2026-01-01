@@ -21,7 +21,7 @@ def create_app():
     mail.init_app(app)
     login_manager.init_app(app)
 
-    engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+    engine = create_engine(app.config["mysql://root:yxpVkOzJCBXpybNYXFdmQXPvULefozpd@nozomi.proxy.rlwy.net:52431/railway"])
     SessionLocal = sessionmaker(bind=engine)
     app.session = SessionLocal
 
@@ -39,5 +39,6 @@ def create_app():
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         from app.utils.scheduler import start_scheduler
         start_scheduler(app)
+
 
     return app
