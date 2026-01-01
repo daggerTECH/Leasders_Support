@@ -21,7 +21,7 @@ def create_app():
     mail.init_app(app)
     login_manager.init_app(app)
 
-    engine = create_engine(app.config["mysql://root:yxpVkOzJCBXpybNYXFdmQXPvULefozpd@nozomi.proxy.rlwy.net:52431/railway"])
+    engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
     SessionLocal = sessionmaker(bind=engine)
     app.session = SessionLocal
 
@@ -42,3 +42,4 @@ def create_app():
 
 
     return app
+
