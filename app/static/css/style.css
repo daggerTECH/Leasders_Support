@@ -397,15 +397,16 @@ button {
 .note-images {
     display: flex;
     gap: 10px;
-    margin-top: 8px;
+    margin-top: 10px;
     flex-wrap: wrap;
 }
 
 .note-image {
-    max-width: 120px;
+    max-width: 160px;
     border-radius: 6px;
+    border: 1px solid #334155;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s ease;
 }
 
 .note-image:hover {
@@ -1206,5 +1207,6 @@ button {
     background: #0f766e;
 
 }
+
 
 
