@@ -81,6 +81,21 @@ CREATE TABLE notifications (
     FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- -----------------------------------------------------
+-- ANOTATIONS (IN-APP)
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS ticket_notes;
+
+CREATE TABLE ticket_notes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT NOT NULL,
+    user_id INT NOT NULL,
+    note TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- -----------------------------------------------------
 -- OPTIONAL: SAMPLE VERIFIED ADMIN USER
@@ -91,3 +106,4 @@ CREATE TABLE notifications (
 --
 -- INSERT INTO users (email, password, role, is_verified)
 -- VALUES ('admin@leaders.st', '<HASH>', 'admin', 1);
+
