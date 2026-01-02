@@ -269,42 +269,126 @@ tr:hover td {
     text-decoration: underline;
 }
 
-/* ===============================
-   TICKET NOTES
-   =============================== */
-.ticket-notes {
-    margin-top: 30px;
+/* =========================
+   LAYOUT
+========================= */
+.ticket-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+@media (max-width: 900px) {
+    .ticket-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ticket-left,
+.ticket-right {
+    background: #1e293b;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+/* =========================
+   BADGES
+========================= */
+.status-badge,
+.priority-badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    color: white;
+}
+
+.open { background: #fbbf24; color: #1e1e1e; }
+.progress { background: #3b82f6; }
+.resolved { background: #22c55e; }
+
+.high { background: #ef4444; }
+.medium { background: #f59e0b; }
+.low { background: #10b981; }
+
+/* =========================
+   FORM
+========================= */
+.label {
+    font-weight: bold;
+    color: #93c5fd;
+    display: block;
+    margin: 12px 0 6px;
+}
+
+select,
+textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-secondary {
+    background: #22c55e;
+    color: black;
+}
+
+/* =========================
+   NOTES
+========================= */
+.notes-list {
+    max-height: 420px;
+    overflow-y: auto;
+    margin-bottom: 12px;
 }
 
 .note-item {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    padding: 12px;
-    margin-bottom: 10px;
+    background: #020617;
+    border-left: 4px solid #38bdf8;
+    padding: 10px;
     border-radius: 6px;
+    margin-bottom: 10px;
 }
 
 .note-header {
+    font-size: 13px;
+    color: #93c5fd;
     display: flex;
     justify-content: space-between;
-    font-size: 13px;
-    color: #94a3b8;
+    margin-bottom: 4px;
 }
 
 .note-role {
+    color: #22c55e;
+    font-size: 11px;
     margin-left: 8px;
-    color: #38bdf8;
 }
 
-.note-form textarea {
-    width: 100%;
-    min-height: 80px;
-    margin-top: 10px;
-    padding: 8px;
-}
-
-.note-form button {
-    margin-top: 8px;
+/* =========================
+   MISC
+========================= */
+.back-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: #93c5fd;
+    text-decoration: none;
 }
 
 /* ===============================
@@ -1101,3 +1185,4 @@ tr:hover td {
     background: #0f766e;
 
 }
+
