@@ -132,7 +132,16 @@
                             <span class="note-role">{{ n.role|upper }}</span>
                             <small>{{ n.created_at }}</small>
                         </div>
+                        
                         <p>{{ n.note }}</p>
+                        
+                        {% if n.images %}
+                        <div class="note-images">
+                            {% for img in n.images %}
+                                <img src="/{{ img.file_path }}" class="note-image">
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% else %}
@@ -154,6 +163,7 @@
 
 </body>
 </html>
+
 
 
 
