@@ -83,8 +83,8 @@ def send_verification_email(email: str):
     )
 
     msg = Message(
-        subject="Verify Your Leaders.st Account",
-        sender=current_app.config["EMAIL_USERNAME"],
+        subject="Verify Your Leaders Account",
+        sender=current_app.config["MAIL_USERNAME"],
         recipients=[email],
         html=verification_email_html(verify_url)
     )
@@ -200,3 +200,4 @@ def reset_password(token):
         return redirect(url_for("auth.login"))
 
     return render_template("reset_password.html")
+
