@@ -72,7 +72,7 @@ def logout():
 # ============================================================
 # SEND VERIFICATION EMAIL (SAFE)
 # ============================================================
-def send_verification_email(email: str):
+def send_verification_email(email):
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     token = serializer.dumps(email, salt="email-verify")
 
@@ -83,8 +83,7 @@ def send_verification_email(email: str):
     )
 
     msg = Message(
-        subject="Verify Your Leaders Account",
-        sender=current_app.config["MAIL_USERNAME"],
+        subject="Verify Your Leaders.st Account",
         recipients=[email],
         html=verification_email_html(verify_url)
     )
@@ -200,4 +199,5 @@ def reset_password(token):
         return redirect(url_for("auth.login"))
 
     return render_template("reset_password.html")
+
 
