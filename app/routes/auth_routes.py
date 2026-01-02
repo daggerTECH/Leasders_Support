@@ -150,7 +150,7 @@ def forgot_password():
 
         msg = Message(
             subject="Reset Your Leaders.st Password",
-            sender=current_app.config["EMAIL_USERNAME"],
+            sender=current_app.config["MAIL_USERNAME"],
             recipients=[email],
             html=reset_password_email_html(reset_url)
         )
@@ -199,5 +199,6 @@ def reset_password(token):
         return redirect(url_for("auth.login"))
 
     return render_template("reset_password.html")
+
 
 
