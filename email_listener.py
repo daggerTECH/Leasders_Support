@@ -2,24 +2,50 @@ import imaplib
 import email
 from email.header import decode_header
 from sqlalchemy import text
+from app import create_app
 import socket
 import re
 import time
-import os
 
 
 # ============================================================
-# IMAP CONFIG (FROM ENV)
+# INIT FLASK APP (ISOLATED, SAFE)
+# ============================================================
+flask_app = create_app()
+
+# ============================================================
+# UID Tracker
+# ============================================================
+UID_FILE = "last_uid.txt"
+
+def get_last_uid():
+    try:
+        with open(UID_FILE, "r") as f:
+            return int(f.read().strip())
+    except:
+        return 0
+
+def save_last_uid(uid):
+    with open(UID_FILE, "w") as f:
+        f.write(str(uid))
+
+
+# ============================================================
+# IMAP CONFIG
 # ============================================================
 IMAP_HOST = "imap.gmail.com"
-EMAIL_USER = os.getenv("EMAIL_USERNAME")
-EMAIL_PASS = os.getenv("EMAIL_PASSWORD")
-
-if not EMAIL_USER or not EMAIL_PASS:
-    raise RuntimeError("❌ EMAIL_USERNAME or EMAIL_PASSWORD not set")
-
+EMAIL_USER = "primeadsdigital@gmail.com"
+EMAIL_PASS = "mwwe grms mazj yqeg"
 
 socket.setdefaulttimeout(30)
+
+# ============================================================
+# SMTP CONFIG (AUTO-REPLY)
+# ============================================================
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+SMTP_USER = EMAIL_USER
+SMTP_PASS = EMAIL_PASS
 
 
 # ============================================================
@@ -55,44 +81,64 @@ def detect_priority(subject, body):
 
 
 # ============================================================
-# CREATE TICKET
+# CREATE TICKET (SAFE + DEDUPLICATED)
 # ============================================================
 def create_ticket(session, sender, subject, body, message_id):
+    # ----------------------------
+    # Prevent duplicate email
+    # ----------------------------
     exists = session.execute(
-        text("SELECT 1 FROM tickets WHERE message_id = :mid"),
+        text("SELECT id FROM tickets WHERE message_id = :mid LIMIT 1"),
         {"mid": message_id}
     ).fetchone()
 
     if exists:
+        print(f"🔁 Duplicate email ignored (message_id={message_id})")
         return None
 
-    result = session.execute(
-        text("""
-            INSERT INTO tickets
-            (email, description, status, priority, message_id, created_at, updated_at)
-            VALUES
-            (:email, :desc, 'Open', :priority, :mid, NOW(), NOW())
-        """),
-        {
-            "email": sender,
-            "desc": body,
-            "priority": detect_priority(subject, body),
-            "mid": message_id
-        }
-    )
+    try:
+        # ----------------------------
+        # Insert ticket FIRST
+        # ----------------------------
+        result = session.execute(
+            text("""
+                INSERT INTO tickets
+                (email, description, status, priority, message_id, created_at, updated_at)
+                VALUES
+                (:email, :desc, 'Open', :priority, :mid, NOW(), NOW())
+            """),
+            {
+                "email": sender,
+                "desc": body,
+                "priority": detect_priority(subject, body),
+                "mid": message_id
+            }
+        )
 
-    ticket_id = result.lastrowid
-    ticket_code = f"TCK-{ticket_id:05d}"
+        ticket_id = result.lastrowid
+        ticket_code = f"TCK-{ticket_id:05d}"
 
-    session.execute(
-        text("UPDATE tickets SET ticket_code = :code WHERE id = :id"),
-        {"code": ticket_code, "id": ticket_id}
-    )
+        # ----------------------------
+        # Update ticket_code safely
+        # ----------------------------
+        session.execute(
+            text("""
+                UPDATE tickets
+                SET ticket_code = :code
+                WHERE id = :id
+            """),
+            {"code": ticket_code, "id": ticket_id}
+        )
 
-    session.commit()
-    print(f"✅ Ticket created: {ticket_code}")
-    return ticket_code
+        session.commit()
 
+        print(f"✅ NEW TICKET CREATED: {ticket_code} from {sender}")
+        return ticket_code
+
+    except Exception as e:
+        session.rollback()
+        print("❌ Ticket creation failed:", e)
+        return None
 
 # ============================================================
 # AUTO REPLY
@@ -101,79 +147,138 @@ def send_auto_reply(to_email, ticket_code, original_msg):
     import smtplib
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
+    import time
 
-    msg = MIMEMultipart()
-    msg["From"] = "Leaders Support <primeadsdigital@gmail.com>"
-    msg["To"] = to_email
-    msg["Subject"] = f"Re: Ticket {ticket_code} received"
+    print("📨 Preparing auto-reply...")
 
-    if original_msg.get("Message-ID"):
-        msg["In-Reply-To"] = original_msg.get("Message-ID")
-        msg["References"] = original_msg.get("Message-ID")
+    try:
+        # ⏳ Small delay prevents Gmail suppression
+        time.sleep(3)
 
-    body = f"""
+        msg = MIMEMultipart()
+        msg["From"] = "Leaders Support <danny.villanueva@leaders.st>"
+        msg["To"] = to_email
+        msg["Subject"] = f"Re: Ticket {ticket_code} received"
+        msg["Reply-To"] = "primeadsdigital@gmail.com"
+
+        # 🔗 Reference original email (CRITICAL)
+        if original_msg.get("Message-ID"):
+            msg["In-Reply-To"] = original_msg.get("Message-ID")
+            msg["References"] = original_msg.get("Message-ID")
+
+        # ✅ Mark as auto-reply (but NOT bulk)
+        msg["Auto-Submitted"] = "auto-replied"
+
+        body = f"""
 Hello,
 
-Your support ticket has been received.
+Thank you for contacting Leaders Support.
+
+We have received your request and created a support ticket.
 
 Ticket Number: {ticket_code}
 
-We will get back to you shortly.
+Our team will review your concern and get back to you shortly.
+You may reply to this email to add more information.
 
-Regards,
-Leaders Support
+Best regards,
+Leaders Support Team
 """
-    msg.attach(MIMEText(body, "plain"))
+        msg.attach(MIMEText(body, "plain"))
 
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls()
-    server.login(EMAIL_USER, EMAIL_PASS)
-    server.sendmail(EMAIL_USER, to_email, msg.as_string())
-    server.quit()
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=20)
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
+        server.login(SMTP_USER, SMTP_PASS)
 
+        server.sendmail(
+            "primeadsdigital@gmail.com",
+            to_email,
+            msg.as_string()
+        )
+
+        server.quit()
+        print(f"✅ Auto-reply delivered to {to_email}")
+
+    except Exception as e:
+        print("❌ AUTO-REPLY FAILED")
+        print(type(e).__name__, ":", e)
 
 # ============================================================
-# PROCESS EMAIL
+# PROCESS LATEST EMAIL ONLY
 # ============================================================
 def process_latest_email(mail, session):
-    result, data = mail.search(None, "UNSEEN")
-    if result != "OK" or not data[0]:
-        return
+    last_uid = get_last_uid()
 
-    for num in data[0].split():
-        _, msg_data = mail.fetch(num, "(RFC822)")
-        msg = email.message_from_bytes(msg_data[0][1])
+    # ONLY fetch emails newer than last UID
+    result, data = mail.uid("search", None, f"(UID {last_uid + 1}:*)")
+    uids = data[0].split()
 
-        sender = normalize_sender(msg.get("From"))
-        if sender not in ALLOWED_SENDERS:
-            continue
+    if not uids:
+        return False
 
-        subject, enc = decode_header(msg.get("Subject"))[0]
-        subject = subject.decode(enc or "utf-8") if isinstance(subject, bytes) else subject
+    uid = uids[-1]  # newest ONLY
 
-        body = ""
-        if msg.is_multipart():
-            for part in msg.walk():
-                if part.get_content_type() == "text/plain":
-                    body = part.get_payload(decode=True).decode(errors="ignore")
-                    break
-        else:
-            body = msg.get_payload(decode=True).decode(errors="ignore")
+    result, msg_data = mail.uid("fetch", uid, "(RFC822)")
+    msg = email.message_from_bytes(msg_data[0][1])
 
-        message_id = msg.get("Message-ID", f"fallback-{num.decode()}")
+    message_id = msg.get("Message-ID")
+    if not message_id:
+        message_id = f"fallback-{uid.decode()}"
 
-        ticket_code = create_ticket(session, sender, subject, body, message_id)
-        if ticket_code:
-            send_auto_reply(sender, ticket_code, msg)
+    # DB-level dedupe (final safety)
+    exists = session.execute(
+        text("SELECT 1 FROM tickets WHERE message_id = :mid"),
+        {"mid": message_id}
+    ).fetchone()
+
+    if exists:
+        save_last_uid(int(uid))
+        return False
+
+    sender = normalize_sender(msg.get("From"))
+
+    if sender not in ALLOWED_SENDERS:
+        save_last_uid(int(uid))
+        return False
+
+    subject_raw, encoding = decode_header(msg.get("Subject"))[0]
+    subject = subject_raw.decode(encoding or "utf-8") if isinstance(subject_raw, bytes) else subject_raw
+    subject = subject.strip() if subject else "(No Subject)"
+
+    body = ""
+    if msg.is_multipart():
+        for part in msg.walk():
+            if part.get_content_type() == "text/plain":
+                body = part.get_payload(decode=True).decode(errors="ignore")
+                break
+    else:
+        body = msg.get_payload(decode=True).decode(errors="ignore")
+
+    if not body:
+        body = "(No content)"
+
+    ticket_code = create_ticket(session, sender, subject, body, message_id)
+
+    if ticket_code:
+        send_auto_reply(sender, ticket_code, msg)
+
+    # ✅ Update UID marker
+    save_last_uid(int(uid))
+
+    return True
 
 
 # ============================================================
-# MAIN LOOP
+# IMAP IDLE LOOP (STABLE)
 # ============================================================
-def run_listener(app):
-    with app.app_context():
-        session = app.session()
-        print("📩 Email listener started")
+def idle_listener():
+    with flask_app.app_context():
+        session = flask_app.session()
+        backoff = 5
+
+        print("📩 Waiting for NEW incoming email...")
 
         while True:
             try:
@@ -181,20 +286,35 @@ def run_listener(app):
                 mail.login(EMAIL_USER, EMAIL_PASS)
                 mail.select("INBOX")
 
-                process_latest_email(mail, session)
+                # Enter IDLE
+                mail.send(b"IDLE\r\n")
+
+                try:
+                    line = mail.readline()  # block quietly
+
+                except socket.timeout:
+                    pass  # normal Gmail behavior
+
+                finally:
+                    # Exit IDLE cleanly
+                    mail.send(b"DONE\r\n")
+
+                # 🔑 ALWAYS check UNSEEN once after IDLE exits
+                processed = process_latest_email(mail, session)
 
                 mail.logout()
-                time.sleep(15)
+
+                if processed:
+                    time.sleep(2)  # small cooldown after success
 
             except Exception as e:
-                print("🔄 IMAP error:", e)
-                time.sleep(30)
+                print(f"🔄 IMAP reconnect: {e}")
+                time.sleep(backoff)
+                backoff = min(backoff * 2, 120)
 
 
 # ============================================================
 # START
 # ============================================================
 if __name__ == "__main__":
-    from app import create_app
-    flask_app = create_app()
-    run_listener(flask_app)
+    idle_listener()
