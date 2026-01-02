@@ -1,7 +1,7 @@
 import os
 
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY")
+    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret")
 
     # Gmail SMTP
     MAIL_SERVER = "smtp.gmail.com"
@@ -9,8 +9,10 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
 
-    MAIL_USERNAME = "MAIL_USERNAME"
-    MAIL_PASSWORD = "MAIL_PASSWORD"
+    MAIL_USERNAME = os.environ.get("EMAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+
+    MAIL_DEFAULT_SENDER = MAIL_USERNAME
 
     # SQLAlchemy Database
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
@@ -18,3 +20,4 @@ class Config:
 
     # SLACK NOTIFIER
     SLACK_WEBHOOK_URL = "SLACK_WEBHOOK_URL"
+
