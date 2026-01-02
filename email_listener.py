@@ -260,12 +260,16 @@ def process_latest_email(mail, session):
         save_last_uid(int(uid))
         return False
 
+    subject_raw, encoding = decode_header(msg.get("Subject"))[0]
+    subject = subject_raw.decode(encoding or "utf-8") if isinstance(subject_raw, bytes) else subject_raw
+    subject = subject.strip() if subject else "(No Subject)"
+    
     # --------------------------------------------------
     # 🚫 IGNORE REPLIES TO EXISTING TICKETS
     # --------------------------------------------------
     in_reply_to = msg.get("In-Reply-To")
     references = msg.get("References")
-    
+
     # Subject-based reply detection
     is_reply_subject = subject.lower().startswith("re:")
     
@@ -273,10 +277,6 @@ def process_latest_email(mail, session):
         print("↩️ Email reply detected — no new ticket created")
         save_last_uid(int(uid))
         return False
-
-    subject_raw, encoding = decode_header(msg.get("Subject"))[0]
-    subject = subject_raw.decode(encoding or "utf-8") if isinstance(subject_raw, bytes) else subject_raw
-    subject = subject.strip() if subject else "(No Subject)"
 
     body = ""
     if msg.is_multipart():
@@ -349,5 +349,6 @@ def idle_listener():
 # ============================================================
 if __name__ == "__main__":
     idle_listener()
+
 
 
