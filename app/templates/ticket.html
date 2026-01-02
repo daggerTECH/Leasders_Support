@@ -135,12 +135,16 @@
                         
                         <p>{{ n.note }}</p>
                         
-                        {% if n.images %}
-                        <div class="note-images">
-                            {% for img in n.images %}
-                                <img src="/{{ img.file_path }}" class="note-image">
-                            {% endfor %}
-                        </div>
+                        {% if images_by_note.get(n.id) %}
+                            <div class="note-images">
+                                {% for img in images_by_note[n.id] %}
+                                    <img 
+                                        src="{{ url_for('static', filename=img) }}"
+                                        class="note-image"
+                                        loading="lazy"
+                                    >
+                                {% endfor %}
+                            </div>
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -163,6 +167,7 @@
 
 </body>
 </html>
+
 
 
 
