@@ -5,6 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
+from app.email_templates import verification_email_html
 
 from app import mail
 
@@ -98,3 +99,4 @@ def create_user():
         return redirect(url_for("ticket.dashboard"))
 
     return render_template("create_user.html")
+
