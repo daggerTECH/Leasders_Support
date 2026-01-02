@@ -98,6 +98,22 @@ CREATE TABLE ticket_notes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- -----------------------------------------------------
+-- ANOTATIONS ATTACHMENTS (IN-APP)
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS note_attachments;
+
+CREATE TABLE note_attachments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    note_id INT NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    file_type VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (note_id) REFERENCES ticket_notes(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- -----------------------------------------------------
 -- OPTIONAL: SAMPLE VERIFIED ADMIN USER
 -- -----------------------------------------------------
 -- Generate hash in Python:
@@ -106,4 +122,5 @@ CREATE TABLE ticket_notes (
 --
 -- INSERT INTO users (email, password, role, is_verified)
 -- VALUES ('admin@leaders.st', '<HASH>', 'admin', 1);
+
 
