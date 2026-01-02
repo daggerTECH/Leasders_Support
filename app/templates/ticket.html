@@ -153,12 +153,9 @@
             {% endif %}
         </div>
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data" class="note-form">
             <textarea name="note" placeholder="Write a note..." required></textarea>
-            <input type="file"
-           name="images"
-           accept="image/*"
-           multiple>
+            <input type="file" name="images" accept="image/*">
             <button class="btn-secondary" type="submit">Add Note</button>
         </form>
     </div>
@@ -167,8 +164,3 @@
 
 </body>
 </html>
-
-
-
-
-
