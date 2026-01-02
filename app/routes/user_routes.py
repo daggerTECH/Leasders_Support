@@ -10,9 +10,6 @@ from app import mail
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
 
-# Use app SECRET_KEY for consistency
-ts = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY", "leaders_secret"))
-
 
 # ============================
 # ADMIN CREATE USER
@@ -82,5 +79,6 @@ def create_user():
         return redirect(url_for("ticket.dashboard"))
 
     return render_template("create_user.html")
+
 
 
