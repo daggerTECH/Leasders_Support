@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, current_app, redirect, url_for
+from flask import Blueprint, render_template, request, current_app, redirect, url_for, flash
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
 from sqlalchemy import text
@@ -10,7 +10,8 @@ from app import mail
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
 
-ts = URLSafeTimedSerializer("leaders_secret")
+# Use app SECRET_KEY for consistency
+ts = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY", "leaders_secret"))
 
 
 # ============================
@@ -27,12 +28,17 @@ def create_user():
         password = request.form["password"]
         role = request.form["role"]
 
-        hashed = generate_password_hash(password)
+        if not email or not password or not role:
+            return render_template(
+                "create_user.html",
+                error="All fields are required."
+            )
 
+        hashed = generate_password_hash(password)
         session = current_app.session()
 
         # -------------------------
-        # PRE-CHECK: EMAIL EXISTS
+        # CHECK IF EMAIL EXISTS
         # -------------------------
         existing = session.execute(
             text("SELECT id FROM users WHERE email = :email"),
@@ -47,7 +53,7 @@ def create_user():
             )
 
         # -------------------------
-        # INSERT USER (SAFE)
+        # INSERT USER
         # -------------------------
         try:
             session.execute(
@@ -71,13 +77,15 @@ def create_user():
                 error="A user with this email already exists."
             )
 
-        session.close()
+        finally:
+            session.close()
 
         # -------------------------
         # SEND VERIFICATION EMAIL
         # -------------------------
         try:
             token = ts.dumps(email, salt="email-verify")
+
             verify_url = url_for(
                 "auth.verify_email",
                 token=token,
@@ -92,10 +100,15 @@ def create_user():
             )
 
             mail.send(msg)
+            flash("User created successfully. Verification email sent.", "success")
 
         except Exception as e:
-            # Email failure should NOT break user creation
+            # Email failure should NOT block account creation
             print("⚠️ Verification email failed:", e)
+            flash(
+                "User created, but verification email could not be sent.",
+                "warning"
+            )
 
         return redirect(url_for("ticket.dashboard"))
 
