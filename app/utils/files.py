@@ -5,7 +5,6 @@ def allowed_file(filename):
         "." in filename
         and filename.rsplit(".", 1)[1].lower()
         in current_app.config.get(
-            "ALLOWED_EXTENSIONS",
-            {"png", "jpg", "jpeg", "gif"}
+            "ALLOWED_EXTENSIONS", {"png", "jpg", "jpeg", "gif"}, "UPLOAD_FOLDER", {"static/"}
         )
     )
