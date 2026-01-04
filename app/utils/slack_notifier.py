@@ -9,14 +9,20 @@ def send_slack_message(message: str) -> bool:
     webhook = current_app.config.get("SLACK_WEBHOOK_URL")
 
     if not webhook:
-        print("❌ SLACK_WEBHOOK_URL not set")
+        print("❌ SLACK_WEBHOOK_URL not set in config.py")
         return False
 
     try:
-        res = requests.post(webhook, json={"text": message}, timeout=10)
-        if res.status_code != 200:
-            print("❌ Slack API error:", res.text)
+        response = requests.post(
+            webhook,
+            json={"text": message},
+            timeout=10
+        )
+
+        if response.status_code != 200:
+            print("❌ Slack API error:", response.text)
             return False
+
         return True
 
     except Exception as e:
@@ -43,14 +49,14 @@ def notify_user(session, user_id, ticket_id, ticket_code, message):
 
 
 # ============================================================
-# OVERDUE NOTIFIER (SOURCE OF TRUTH)
+# OVERDUE + SLA WARNING NOTIFIER
 # ============================================================
 def notify_overdue_tickets():
     """
-    Run INSIDE app.app_context()
-    Execute manually with:
-        python -m app.utils.slack_notifier
+    MUST be called inside app.app_context()
+    (Handled by scheduler.py or cron job)
     """
+
     session = current_app.session()
 
     tickets = session.execute(
@@ -58,7 +64,8 @@ def notify_overdue_tickets():
             SELECT
                 t.id,
                 t.ticket_code,
-                t.sla_hours,
+                t.email AS client_email,
+                t.priority,
                 t.slack_notified,
                 TIMESTAMPDIFF(HOUR, t.created_at, NOW()) AS elapsed_hours,
                 u.id AS agent_id,
@@ -70,80 +77,102 @@ def notify_overdue_tickets():
     ).fetchall()
 
     if not tickets:
-        print("ℹ️ No active tickets found")
+        print("✅ No active tickets")
         session.close()
         return
 
     sent = 0
 
     for t in tickets:
-        # ----------------------------
-        # Skip if not overdue
-        # ----------------------------
-        if t.elapsed_hours <= t.sla_hours:
-            continue
+        # SLA rules
+        if t.priority == "High":
+            sla = 24
+        elif t.priority == "Medium":
+            sla = 48
+        else:
+            sla = 72
 
-        # ----------------------------
-        # Skip if already notified
-        # ----------------------------
-        if t.slack_notified:
-            continue
+        elapsed = t.elapsed_hours
+        remaining = sla - elapsed
 
-        overdue_by = t.elapsed_hours - t.sla_hours
-        print(f"🚨 OVERDUE: {t.ticket_code} ({overdue_by}h)")
-
-        # ----------------------------
-        # Slack alert
-        # ----------------------------
-        slack_msg = (
-            "🚨 *OVERDUE TICKET ALERT*\n"
-            f"*Ticket:* {t.ticket_code}\n"
-            f"*Overdue By:* {overdue_by}h\n"
-            f"*Agent:* {t.agent_email or 'Unassigned'}\n"
-            "⚠️ Immediate action required"
-        )
-
-        send_slack_message(slack_msg)
-
-        # ----------------------------
-        # Notify assigned agent
-        # ----------------------------
-        if t.agent_id:
-            notify_user(
-                session,
-                t.agent_id,
-                t.id,
-                t.ticket_code,
-                f"Ticket {t.ticket_code} is overdue"
+        # ================================
+        # SLA WARNING (80% threshold)
+        # ================================
+        if remaining > 0 and remaining <= sla * 0.2:
+            warning_msg = (
+                "⏳ *SLA WARNING*\n"
+                f"*Ticket:* {t.ticket_code}\n"
+                f"*Client:* {t.client_email}\n"
+                f"*Remaining:* {remaining}h\n"
+                "⚠️ SLA almost breached"
             )
 
-        # ----------------------------
-        # Notify admins
-        # ----------------------------
-        admins = session.execute(
-            text("SELECT id FROM users WHERE role = 'admin'")
-        ).fetchall()
+            print(f"⚠️ SLA warning for {t.ticket_code}")
+            send_slack_message(warning_msg)
 
-        for admin in admins:
-            notify_user(
-                session,
-                admin.id,
-                t.id,
-                t.ticket_code,
-                f"Overdue ticket {t.ticket_code} requires attention"
+            if t.agent_id:
+                notify_user(
+                    session,
+                    t.agent_id,
+                    t.id,
+                    t.ticket_code,
+                    f"SLA warning: ticket {t.ticket_code} nearing deadline"
+                )
+
+        # ================================
+        # OVERDUE (SEND ONCE ONLY)
+        # ================================
+        if elapsed > sla and t.slack_notified == 0:
+            over_by = elapsed - sla
+
+            overdue_msg = (
+                "🚨 *OVERDUE TICKET ALERT*\n"
+                f"*Ticket:* {t.ticket_code}\n"
+                f"*Client:* {t.client_email}\n"
+                f"*Agent:* {t.agent_email or 'Unassigned'}\n"
+                f"*Overdue By:* {over_by}h\n"
+                "🔥 Immediate action required"
             )
 
-        # ----------------------------
-        # Lock notification
-        # ----------------------------
-        session.execute(
-            text("UPDATE tickets SET slack_notified = 1 WHERE id = :id"),
-            {"id": t.id}
-        )
+            print(f"🚨 Overdue alert for {t.ticket_code}")
 
-        sent += 1
+            if send_slack_message(overdue_msg):
+                session.execute(
+                    text("""
+                        UPDATE tickets
+                        SET slack_notified = 1
+                        WHERE id = :id
+                    """),
+                    {"id": t.id}
+                )
+
+                # Notify assigned agent
+                if t.agent_id:
+                    notify_user(
+                        session,
+                        t.agent_id,
+                        t.id,
+                        t.ticket_code,
+                        f"Ticket {t.ticket_code} is overdue"
+                    )
+
+                # Notify admins
+                admins = session.execute(
+                    text("SELECT id FROM users WHERE role = 'admin'")
+                ).fetchall()
+
+                for admin in admins:
+                    notify_user(
+                        session,
+                        admin.id,
+                        t.id,
+                        t.ticket_code,
+                        f"Overdue ticket {t.ticket_code} requires attention"
+                    )
+
+                sent += 1
 
     session.commit()
     session.close()
 
-    print(f"🔔 Overdue notifications sent: {sent}")
+    print(f"🔔 Slack alerts sent: {sent}")
