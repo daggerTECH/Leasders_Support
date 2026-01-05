@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from config import Config
 import os
+from app.utils.timeago import time_ago
 
 mail = Mail()
 login_manager = LoginManager()
@@ -40,7 +41,10 @@ def create_app():
         from app.utils.scheduler import start_scheduler
         start_scheduler(app)
 
+    # ✅ Register Jinja filter
+    app.jinja_env.filters["timeago"] = time_ago
 
     return app
+
 
 
