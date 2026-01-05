@@ -1,8 +1,15 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 def time_ago(dt):
     if not dt:
         return ""
+
+    # ✅ Convert string → datetime if needed
+    if isinstance(dt, str):
+        try:
+            dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            return dt  # fallback: show raw value
 
     now = datetime.utcnow()
     diff = now - dt
@@ -23,4 +30,4 @@ def time_ago(dt):
     elif days < 7:
         return f"{int(days)} days ago"
     else:
-        return dt.strftime("%b %d")  # Jan 5
+        return dt.strftime("%b %d")
