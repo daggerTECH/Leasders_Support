@@ -237,30 +237,31 @@ def view_ticket(id):
                     }
                 )
                 note_id = result.lastrowid
-        
-                # 2️⃣ Absolute path where files are SAVED
-                upload_dir = os.path.join(
-                    current_app.root_path,
-                    "app",
-                    "static",
+            
+                # 2️⃣ RELATIVE path (stored in DB & used by url_for)
+                relative_dir = os.path.join(
                     "uploads",
                     "tickets",
                     f"ticket_{id}",
                     f"note_{note_id}"
                 )
-        
+            
+                # 3️⃣ ABSOLUTE filesystem path (where file is saved)
+                upload_dir = os.path.join(
+                    current_app.static_folder,
+                    relative_dir
+                )
+            
                 os.makedirs(upload_dir, exist_ok=True)
-        
-                # 3️⃣ Relative path stored in DB (NO 'static/')
-                db_path_prefix = f"app/static/uploads/tickets/ticket_{id}/note_{note_id}"
-        
+            
                 for file in files:
                     if file and allowed_file(file.filename):
                         filename = secure_filename(file.filename)
-        
-                        file_path = os.path.join(upload_dir, filename)
-                        file.save(file_path)
-        
+            
+                        absolute_path = os.path.join(upload_dir, filename)
+                        file.save(absolute_path)
+            
+                        # 4️⃣ Store RELATIVE path ONLY (NO static/, NO app/)
                         session.execute(
                             text("""
                                 INSERT INTO note_attachments
@@ -269,13 +270,13 @@ def view_ticket(id):
                             """),
                             {
                                 "note_id": note_id,
-                                "file_path": f"{db_path_prefix}/{filename}",
+                                "file_path": f"{relative_dir}/{filename}",
                                 "file_type": file.mimetype
                             }
                         )
-        
+            
                 session.commit()
-        
+            
             session.close()
             return redirect(url_for("ticket.view_ticket", id=id))
 
@@ -412,6 +413,7 @@ def view_ticket(id):
         notes=notes,
         images_by_note=images_by_note
     )
+
 
 
 
