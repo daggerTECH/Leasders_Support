@@ -1208,6 +1208,154 @@ button {
 
 }
 
+/* ==========================================================
+   MOBILE RESPONSIVE DASHBOARD
+   ========================================================== */
+@media (max-width: 768px) {
+
+  /* ===== GLOBAL ===== */
+  body {
+    overflow-x: hidden;
+  }
+
+  .dashboard-container {
+    padding: 12px;
+  }
+
+  /* ===== NAV BAR ===== */
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .nav-title {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .nav-links {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* ===== KPI CARDS ===== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .kpi-card {
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+  }
+
+  .kpi-card h3 {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .kpi-number {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  /* ===== SEARCH / FILTER ===== */
+  .filter-form {
+    display: grid;
+    grid-template-columns: 1fr 90px;
+    grid-template-rows: auto auto;
+    gap: 8px;
+  }
+
+  .filter-search {
+    grid-column: 1 / 3;
+    width: 100%;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+
+  .filter-form button {
+    width: 100%;
+    padding: 8px;
+  }
+
+  /* ===== RESULT COUNT ===== */
+  .result-count {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  /* ===== CHARTS ===== */
+  .chart-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .chart-card {
+    width: 100%;
+    max-width: 340px;
+    padding: 14px;
+  }
+
+  .chart-card h3 {
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .chart-card canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 240px;
+    margin: 0 auto;
+    display: block;
+  }
+
+  /* ===== TABLE SECTION ===== */
+  .table-section h2 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .table-section {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    min-width: 720px; /* enable horizontal scroll */
+  }
+
+  table th,
+  table td {
+    font-size: 12px;
+    padding: 8px;
+    white-space: nowrap;
+  }
+
+  /* ===== AGENT INFO ===== */
+  .agent-info {
+    gap: 6px;
+  }
+
+  .agent-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+}
+
+
 
 
 
