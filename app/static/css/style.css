@@ -1197,6 +1197,25 @@ button {
     border-top: 1px solid #334155;
 }
 
+.notif-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.notif-check {
+    margin-top: 6px;
+    cursor: pointer;
+}
+
+.notification-item.read {
+    opacity: 0.6;
+}
+
+.notification-item.unread {
+    background: #1f2937;
+}
+
 .hidden {
     display: none;
 }
@@ -1429,6 +1448,7 @@ button {
     padding: 2px 6px;
   }
 }
+
 
 
 
