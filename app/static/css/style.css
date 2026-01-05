@@ -1203,11 +1203,6 @@ button {
     gap: 8px;
 }
 
-.notif-check {
-    margin-top: 6px;
-    cursor: pointer;
-}
-
 .notification-item.read {
     opacity: 0.6;
 }
@@ -1448,6 +1443,7 @@ button {
     padding: 2px 6px;
   }
 }
+
 
 
 
