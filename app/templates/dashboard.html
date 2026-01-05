@@ -199,7 +199,7 @@
                 </td>
 
                 <!-- Updated -->
-                <td>{{ t.updated_at }}</td>
+                <td>{{ t.updated_at | timeago }}</td>
 
                 <!-- Action -->
                 <td>
@@ -434,6 +434,7 @@ setInterval(fetchNotifications, 10000);
 
 </body>
 </html>
+
 
 
 
