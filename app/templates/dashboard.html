@@ -221,63 +221,6 @@
         {% endif %}
     </div>
 
-    <!-- ============================
-     MOBILE TICKET CARDS
-    ============================ -->
-    <div class="mobile-ticket-list">
-    
-    {% for t in tickets %}
-    <div class="mobile-ticket">
-    
-        <div class="mobile-ticket-top">
-            <span class="mobile-ticket-code">{{ t.ticket_code }}</span>
-    
-            {% if t.status == "Open" %}
-                <span class="status-badge open">OPEN</span>
-            {% elif t.status == "In Progress" %}
-                <span class="status-badge progress">IN PROGRESS</span>
-            {% else %}
-                <span class="status-badge resolved">RESOLVED</span>
-            {% endif %}
-        </div>
-    
-        <div class="mobile-ticket-row">
-            <strong>Email:</strong> {{ t.email }}
-        </div>
-    
-        <div class="mobile-ticket-row">
-            <strong>Priority:</strong>
-            {% if t.priority == "High" %}
-                <span class="priority-badge high">HIGH</span>
-            {% elif t.priority == "Medium" %}
-                <span class="priority-badge medium">MEDIUM</span>
-            {% else %}
-                <span class="priority-badge low">LOW</span>
-            {% endif %}
-        </div>
-    
-        <div class="mobile-ticket-row">
-            <strong>SLA:</strong>
-            {% if t.elapsed_hours > t.sla_hours %}
-                <span class="sla-badge overdue">
-                    Overdue {{ t.elapsed_hours - t.sla_hours }}h
-                </span>
-            {% else %}
-                <span class="sla-badge active">
-                    {{ t.sla_hours - t.elapsed_hours }}h left
-                </span>
-            {% endif %}
-        </div>
-    
-        <div class="mobile-ticket-action">
-            <a href="/ticket/{{ t.id }}" class="mobile-view-btn">View Ticket</a>
-        </div>
-    
-    </div>
-    {% endfor %}
-    
-    </div>
-
 </div>
 
 <!-- ============================
@@ -486,4 +429,5 @@ setInterval(fetchNotifications, 10000);
 
 </body>
 </html>
+
 
