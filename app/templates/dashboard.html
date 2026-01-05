@@ -386,11 +386,6 @@ async function fetchNotifications() {
 
             li.innerHTML = `
                 <div class="notif-row">
-                    <input type="checkbox"
-                           class="notif-check"
-                           onchange="markNotificationRead(${n.id}, false)"
-                           ${n.is_read ? "checked disabled" : ""}>
-            
                     <a href="/ticket/${n.ticket_id}"
                        onclick="markNotificationRead(${n.id}, true)">
                         <strong>${n.ticket_code}</strong><br>
@@ -449,11 +444,6 @@ async function loadAllNotifications() {
 
         li.innerHTML = `
             <div class="notif-row">
-                <input type="checkbox"
-                       class="notif-check"
-                       onchange="markNotificationRead(${n.id}, false)"
-                       ${n.is_read ? "checked disabled" : ""}>
-        
                 <a href="/ticket/${n.ticket_id}"
                    onclick="markNotificationRead(${n.id}, true)">
                     <strong>${n.ticket_code}</strong><br>
@@ -486,6 +476,7 @@ setInterval(fetchNotifications, 10000);
 
 </body>
 </html>
+
 
 
 
