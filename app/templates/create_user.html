@@ -6,6 +6,15 @@
 </head>
 <body>
 
+<!-- GLOBAL LOADER -->
+<div id="globalLoader" class="loader-overlay hidden">
+    <div class="loader-circle">
+        <img src="{{ url_for('static', filename='images/loader-logo.png') }}"
+             alt="Loading"
+             class="loader-logo">
+    </div>
+</div>
+
 <div class="user-create-container">
     <div class="user-create-card">
 
@@ -15,7 +24,7 @@
             <div class="form-error">{{ error }}</div>
         {% endif %}
 
-        <form method="post" class="user-create-form">
+        <form method="post" class="user-create-form" onsubmit="showLoader()">
             <input type="email" name="email" placeholder="User Email" required>
 
             <input type="password" name="password" placeholder="Temporary Password" required>
@@ -26,11 +35,29 @@
                 <option value="agent">Agent</option>
             </select>
 
-            <button type="submit">Create User</button>
+            <button type="submit" onsubmit="showLoader()">Create User</button>
         </form>
 
     </div>
 </div>
 
+<script>
+    const loader = document.getElementById("globalLoader");
+
+    function showLoader() {
+        if (loader) loader.classList.remove("hidden");
+    }
+
+    function hideLoader() {
+        if (loader) loader.classList.add("hidden");
+    }
+
+    // Hide loader when page fully loads
+    window.addEventListener("load", () => {
+        hideLoader();
+    });
+</script>
+
 </body>
+
 </html>
