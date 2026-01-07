@@ -1531,6 +1531,8 @@ button {
     inset: 0;
     top: 50%;
     left: 50%;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     border: 4px solid rgba(255, 255, 255, 0.15);
     border-top: 4px solid #1da1f2;
@@ -1547,6 +1549,7 @@ button {
         transform: rotate(360deg);
     }
 }
+
 
 
 
