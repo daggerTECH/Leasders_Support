@@ -7,6 +7,7 @@ import socket
 import re
 import time
 from app.utils.notifier import notify_user
+from flask import current_app
 
 
 # ============================================================
@@ -363,6 +364,7 @@ def idle_listener():
 # ============================================================
 if __name__ == "__main__":
     idle_listener()
+
 
 
 
