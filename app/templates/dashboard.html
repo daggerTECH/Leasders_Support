@@ -212,7 +212,7 @@
 
                 <!-- Action -->
                 <td>
-                    <a class="ticket-link" href="/ticket/{{ t.id }}">View</a>
+                    <a class="ticket-link" href="/ticket/{{ t.id }}" onclick="showLoader()">View</a>
                 </td>
 
                 <!-- Assigned Agent -->
@@ -502,6 +502,7 @@ const loader = document.getElementById("globalLoader");
 
 </body>
 </html>
+
 
 
 
