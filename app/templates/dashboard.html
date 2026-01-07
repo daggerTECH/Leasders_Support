@@ -92,7 +92,7 @@
          SEARCH + FILTER BAR
     =============================== -->
     <div class="filter-bar">
-        <form method="GET" action="/" class="filter-form">
+        <form method="GET" action="/" class="filter-form" onsubmit="showLoader()">
             <input type="text" name="search" class="filter-search"
                 placeholder="Search by ticket code, email, or description..."
                 value="{{ search }}">
@@ -420,6 +420,7 @@ async function fetchNotifications() {
    MARK SINGLE AS READ
 ============================ */
 async function markNotificationRead(notificationId) {
+    showLoader();
     await fetch(`/notifications/mark-read/${notificationId}`, {
         method: "POST"
     });
@@ -431,6 +432,7 @@ async function markNotificationRead(notificationId) {
    LOAD ALL (READ + UNREAD)
 ============================ */
 async function loadAllNotifications() {
+    showLoader();
     const res = await fetch("/notifications/all");
     const data = await res.json();
 
@@ -500,6 +502,7 @@ const loader = document.getElementById("globalLoader");
 
 </body>
 </html>
+
 
 
 
