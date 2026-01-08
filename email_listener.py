@@ -226,38 +226,38 @@ def create_ticket(session, sender, subject, body, message_id):
 #        body = f"""
 #Hello,
 
-Thank you for contacting Leaders Support.
+#Thank you for contacting Leaders Support.
 
-We have received your request and created a support ticket.
+#We have received your request and created a support ticket.
 
-Ticket Number: {ticket_code}
+#Ticket Number: {ticket_code}
 
-Our team will review your concern and get back to you shortly.
-You may reply to this email to add more information.
+#Our team will review your concern and get back to you shortly.
+#You may reply to this email to add more information.
 
-Best regards,
-Leaders Support Team
-"""
-        msg.attach(MIMEText(body, "plain"))
+#Best regards,
+#Leaders Support Team
+#"""
+#        msg.attach(MIMEText(body, "plain"))
 
-        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=20)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(SMTP_USER, SMTP_PASS)
+#        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=20)
+#        server.ehlo()
+#        server.starttls()
+#        server.ehlo()
+#        server.login(SMTP_USER, SMTP_PASS)
 
-        server.sendmail(
-            "primeadsdigital@gmail.com",
-            to_email,
-            msg.as_string()
-        )
+#        server.sendmail(
+#            "primeadsdigital@gmail.com",
+#            to_email,
+#            msg.as_string()
+#        )
 
-        server.quit()
-        print(f"✅ Auto-reply delivered to {to_email}")
+#        server.quit()
+#        print(f"✅ Auto-reply delivered to {to_email}")
 
-    except Exception as e:
-        print("❌ AUTO-REPLY FAILED")
-        print(type(e).__name__, ":", e)
+#    except Exception as e:
+#        print("❌ AUTO-REPLY FAILED")
+#        print(type(e).__name__, ":", e)
 
 # ============================================================
 # PROCESS LATEST EMAIL ONLY
@@ -373,4 +373,5 @@ def idle_listener():
 # ============================================================
 if __name__ == "__main__":
     idle_listener()
+
 
