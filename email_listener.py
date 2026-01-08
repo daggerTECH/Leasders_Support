@@ -281,18 +281,13 @@ def process_latest_email(mail, session):
 
     sender = normalize_sender(msg.get("From"))
     sender_domain = sender.split("@")[-1]
-
-    # 🚫 Ignore internal emails
+    
+    # 🚫 Ignore internal Leaders emails
     if sender.endswith("@leaders.st"):
         save_last_uid(int(uid))
         return False
-
-    # 🚫 Ignore WordPress / system emails
-    if "wordpress" in sender or "no-reply" in sender:
-        save_last_uid(int(uid))
-        return False
-
-    # 🚫 Allow ONLY approved senders/domains
+    
+    # ✅ Allow only approved senders or domains
     if (
         sender not in ALLOWED_SENDER_EMAILS
         and sender_domain not in ALLOWED_SENDER_DOMAINS
@@ -388,6 +383,7 @@ def idle_listener():
 # ============================================================
 if __name__ == "__main__":
     idle_listener()
+
 
 
 
