@@ -139,61 +139,46 @@
 
     <!-- ================= RIGHT: NOTES ================= -->
     <div class="ticket-right">
-        <h3>📝 Ticket Notes</h3>
+        <h3>📝 Ticket Activity</h3>
 
         <div class="notes-list">
-            {% if notes %}
-                {% for n in notes %}
+            {% for n in notes %}
+                {% if n.is_system %}
+                    <div class="system-note">
+                        <small>{{ n.note }} · {{ n.created_at | timeago }}</small>
+                    </div>
+                {% else %}
                     <div class="note-item">
                         <div class="note-header">
                             <strong>{{ n.email }}</strong>
                             <span class="note-role">{{ n.role|upper }}</span>
                             <small>{{ n.created_at | timeago }}</small>
                         </div>
-                        
+
                         <p>{{ n.note }}</p>
-                        
+
                         {% if images_by_note.get(n.id) %}
                             <div class="note-images">
                                 {% for img in images_by_note[n.id] %}
-                                    <img
-                                        src="{{ url_for('static', filename=img.file_path) }}"
-                                        class="note-image"
-                                        loading="lazy"
-                                    >
+                                    <img src="{{ url_for('static', filename=img.file_path) }}" class="note-image">
                                 {% endfor %}
                             </div>
                         {% endif %}
                     </div>
-                {% endfor %}
-            {% else %}
-                <p>No notes yet.</p>
-            {% endif %}
+                {% endif %}
+            {% endfor %}
         </div>
 
-        <form method="POST" enctype="multipart/form-data" class="note-form" onsubmit="showLoader()">
+        <form method="POST" enctype="multipart/form-data" class="note-form">
             <div class="note-input-wrapper">
                 <textarea name="note" placeholder="Write a note..." required></textarea>
-
-                <!-- Hidden file input -->
-                <input
-                    type="file"
-                    name="images"
-                    id="noteImages"
-                    multiple
-                    accept="image/*"
-                    hidden
-                >
-            
-                <!-- Attach icon -->
-                <label for="noteImages" class="attach-icon" title="Attach images">
+                <input type="file" name="images" id="noteImages" multiple accept="image/*" hidden>
+                <label for="noteImages" class="attach-icon">
                     <img src="{{ url_for('static', filename='images/attachment.png') }}">
                 </label>
             </div>
-            
-            <!-- Image previews -->
+
             <div id="imagePreviewContainer" class="image-preview-container"></div>
-        
             <button class="btn-secondary" type="submit">Add Note</button>
         </form>
     </div>
@@ -275,35 +260,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
