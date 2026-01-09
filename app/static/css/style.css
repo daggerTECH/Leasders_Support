@@ -1621,6 +1621,8 @@ button {
 
 /* Center Logo */
 .loader-logo {
+    top: 50%;
+    left: 50%;
     width: 60px;
     height: auto;
     position: absolute;
@@ -1691,6 +1693,7 @@ button {
         transform: rotate(360deg);
     }
 }
+
 
 
 
