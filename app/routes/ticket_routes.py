@@ -213,32 +213,14 @@ def view_ticket(id):
         return "Ticket not found", 404
 
     # ============================
-    # 🔍 VIEW ACTIVITY (GET ONLY)
+    # 👣 LOG VIEW ACTIVITY (EVERY TIME)
     # ============================
-    if request.method == "GET":
-        recent_view = session.execute(
-            text("""
-                SELECT 1 FROM ticket_notes
-                WHERE ticket_id = :ticket_id
-                  AND user_id = :user_id
-                  AND is_system = 1
-                  AND note LIKE '%viewed this ticket%'
-                  AND created_at >= NOW() - INTERVAL 10 MINUTE
-                LIMIT 1
-            """),
-            {
-                "ticket_id": id,
-                "user_id": current_user.id
-            }
-        ).fetchone()
-
-        if not recent_view:
-            log_ticket_activity(
-                session,
-                id,
-                f"👀 {current_user.email} viewed this ticket"
-            )
-            session.commit()
+    log_ticket_activity(
+        session,
+        id,
+        f"👀 {current_user.email} viewed this ticket"
+    )
+    session.commit()
 
     # ============================
     # HANDLE POST
@@ -438,4 +420,5 @@ def view_ticket(id):
         notes=notes,
         images_by_note=images_by_note
     )
+
 
