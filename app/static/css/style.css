@@ -1617,13 +1617,13 @@ button {
 }
 
 /* Logo stays CENTERED and DOES NOT ROTATE */
-.loader-logo {
+/*.loader-logo {
     position: absolute;
     width: 60px;
     height: auto;
     transform: translate(-50%, -50%);
     z-index: 2;
-}
+}*/
 
 /* ONLY the ring rotates */
 .loader-ring {
@@ -1647,6 +1647,7 @@ button {
         transform: rotate(360deg);
     }
 }
+
 
 
 
