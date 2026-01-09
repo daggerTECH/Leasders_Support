@@ -1682,6 +1682,7 @@ button {
     border-top: 4px solid #1da1f2;
     border-right: 4px solid #1da1f2;
     animation: spin 1.2s linear infinite;
+    z-index: 1;
 }
 
 /* Rotation animation */
@@ -1693,6 +1694,7 @@ button {
         transform: rotate(360deg);
     }
 }
+
 
 
 
