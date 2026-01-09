@@ -316,6 +316,73 @@ tr:hover td {
     box-shadow: 0 0 10px rgba(0,0,0,0.4);
 }
 
+/* ===============================
+   TICKET DESCRIPTION FIX
+================================ */
+.ticket-description {
+    background: #0f172a;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 15px 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.email-collapse summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #93c5fd;
+    margin-bottom: 10px;
+}
+
+.email-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #e5e7eb;
+
+    /* 🔑 critical fixes */
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    max-width: 100%;
+}
+
+/* Fix long URLs */
+.email-body a {
+    color: #38bdf8;
+    word-break: break-all;
+}
+
+/* Paragraph spacing */
+.email-body p {
+    margin-bottom: 10px;
+}
+
+/* Lists */
+.email-body ul,
+.email-body ol {
+    padding-left: 18px;
+    margin: 10px 0;
+}
+
+.email-body li {
+    margin-bottom: 6px;
+}
+
+/* Tables from HTML emails */
+.email-body table {
+    max-width: 100%;
+    display: block;
+    overflow-x: auto;
+}
+
+/* HARD STOP horizontal scroll */
+.ticket-left,
+.ticket-description,
+.email-body {
+    overflow-x: hidden;
+}
+
 /* =========================
    BADGES
 ========================= */
@@ -1545,6 +1612,7 @@ button {
         transform: rotate(360deg);
     }
 }
+
 
 
 
